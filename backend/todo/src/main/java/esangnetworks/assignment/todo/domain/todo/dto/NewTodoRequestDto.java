@@ -2,6 +2,7 @@ package esangnetworks.assignment.todo.domain.todo.dto;
 
 import java.time.LocalDate;
 import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class NewTodoRequestDto {
   private String content;
 
   @NotNull(message = "마감기한을 필수로 입력해야합니다.")
-  @Future(message = "마감기한은 현재 이후의 날짜여야 합니다.")
+  @FutureOrPresent(message = "마감기한은 현재 이후의 날짜여야 합니다.")
   private LocalDate dueDate;
 
 

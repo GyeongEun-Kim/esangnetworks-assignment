@@ -1,5 +1,6 @@
 package esangnetworks.assignment.todo.domain.todo.controller;
 
+import esangnetworks.assignment.todo.domain.todo.dto.TodoPagingDto;
 import esangnetworks.assignment.todo.domain.todo.dto.UpdateTodoRequestDto;
 import esangnetworks.assignment.todo.domain.todo.dto.NewTodoRequestDto;
 import esangnetworks.assignment.todo.domain.todo.dto.ReadTodoResponseDto;
@@ -47,7 +48,7 @@ public class TodoController {
    * @return 할 일 리스트
    */
   @GetMapping("")
-  public ResponseEntity<List<ReadTodoResponseDto>> readTodoList(@RequestParam(defaultValue = "5") int size,@RequestParam(defaultValue = "0") int page, HttpServletRequest request) {
+  public ResponseEntity<TodoPagingDto> readTodoList(@RequestParam(defaultValue = "5") int size,@RequestParam(defaultValue = "0") int page, HttpServletRequest request) {
     return ResponseEntity.ok(todoService.readTodoList(size, page, request));
   }
 

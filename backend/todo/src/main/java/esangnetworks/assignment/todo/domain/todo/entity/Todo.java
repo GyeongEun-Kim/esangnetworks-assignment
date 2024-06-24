@@ -45,6 +45,9 @@ public class Todo {
   @Column(nullable = false)
   private LocalDate dueDate;
 
+  @Column(nullable = false)
+  private Boolean done;
+
   public ReadTodoResponseDto toDto () {
     return ReadTodoResponseDto.builder()
         .todoId(todoId)
@@ -52,6 +55,7 @@ public class Todo {
         .content(content)
         .dueDate(dueDate)
         .user(new UserInfoDto(user.getName(), user.getUserId()))
+        .done(done)
         .build();
   }
 
