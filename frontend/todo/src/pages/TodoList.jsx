@@ -6,7 +6,10 @@ const TodoList = () => {
   const [todos, setTodos] = useState([]);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(5);
+  const [totalPages, setTotalPages] = useState();
   const navigate = useNavigate();
+
+  
 
   useEffect(() => {
     fetchTodos(page, size);
@@ -16,11 +19,12 @@ const TodoList = () => {
     const response = await fetch(`http://localhost:8080/todo?page=${page}&size=${size}`,
     {
       credentials: 'include', 
-    }
-    );
-    const data = await response.json();
-    setTodos(data);
-  
+    })
+    .then(res=>res.json())
+    .then(res=> {  
+      setTodos(res.todoList);
+      setTotalPages(res.totalPages);
+    })
   };
 
   const handleTodoClick = (todoId) => {
@@ -47,6 +51,7 @@ const TodoList = () => {
       <Thead>
       <Tr>
       <Th>마감 기한</Th>
+      <Th>완료 여부</Th>
         <Th>제목</Th>
         <Th>작성자</Th>
       </Tr>
@@ -55,6 +60,7 @@ const TodoList = () => {
         {todos.map(todo => (
           <Tr key={todo.id} onClick={() => handleTodoClick(todo.todoId)}>
             <Th>{todo.dueDate}</Th>
+            {todo.done? <Th style={{color:'green'}}>완료</Th> : <Th style={{color:'red'}}>미완료</Th>}
             <Th>{todo.title}</Th>
             <Th>{todo.user.name}</Th>
           </Tr>
@@ -64,7 +70,7 @@ const TodoList = () => {
       </TableContainer>
       <Flex justify='center'>
         <Button onClick={() => setPage(page > 0 ? page - 1 : 0)} style={{margin:'30px'}}>이전</Button>
-        <Button onClick={() => setPage(page + 1)} style={{margin:'30px'}}>다음</Button>
+        <Button onClick={() => setPage(page + 1 < totalPages? page+1 : page)} style={{margin:'30px'}}>다음</Button>
       </Flex>
       
     </div>

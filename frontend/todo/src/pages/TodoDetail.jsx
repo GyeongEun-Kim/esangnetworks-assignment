@@ -24,7 +24,7 @@ const TodoDetail = () => {
       )
       .then(res=> res.json())
       .then(res=>setTodo(res));
-    }, []);
+    }, [isEditing]);
 
   const handleDelete = async () => {
     await fetch(`http://localhost:8080/todo/${todoId}`,
@@ -56,6 +56,7 @@ const TodoDetail = () => {
           <Spacer/>
           <h2>작성자 : {todo.user.name}</h2>
           </Flex>
+          {todo.done? <h2 style={{color:'green'}}>완료!</h2> : <h2 style={{color:'red'}}>미완료</h2>}
           <Flex style={{margin:'80px'}}>
           <Button size='lg' colorScheme='gray' onClick={() => navigate('/todoList')} >목록으로</Button>
           <Spacer/>

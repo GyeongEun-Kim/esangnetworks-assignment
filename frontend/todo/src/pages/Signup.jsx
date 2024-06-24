@@ -91,7 +91,9 @@ const Signup = () => {
 
   return (
     <div className="signup-container">
+      <Stack>
         <h1 style={{textAlign:'center'}}>회원가입</h1>
+        
         <InputGroup>
           <InputLeftAddon>이름</InputLeftAddon>
           <Input
@@ -138,6 +140,7 @@ const Signup = () => {
         </InputGroup>
 
         <Button onClick={handleSubmit}>회원가입</Button>
+        </Stack>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Input, Stack, InputLeftAddon, InputGroup } from '@chakra-ui/react';
+import '../styles/Signup.css';
 
 const Login = () => {
   
@@ -46,7 +47,8 @@ const Login = () => {
 
 
   return (
-    <div className="login-container">
+    <div className="signup-container">
+      <Stack>
         <h1 style={{textAlign:'center'}}>로그인</h1>
         <Stack spacing={3}>
         <InputGroup>
@@ -68,6 +70,7 @@ const Login = () => {
         </InputGroup>
         
         <Button onClick={login}>로그인</Button>
+        </Stack>
         </Stack>
     </div>
   );

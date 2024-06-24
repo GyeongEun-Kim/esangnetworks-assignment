@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import React from 'react';
 import { Button, Input, InputLeftAddon, Flex, InputGroup, Textarea } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const NewTodo = () => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [dueDate, setDueDate] = useState("");
+    const navigate = useNavigate();
     
     const handleTitle = (e) => {
         setTitle(e.target.value);
@@ -59,6 +62,7 @@ const NewTodo = () => {
           <Input size='md' type='datetime-local'onChange={handleDueDate} />
         </InputGroup>
 
+        <Button style={{margin:'20px'}}  onClick={()=>navigate('/todoList')} colorScheme='gray'>목록으로</Button>
         <Button style={{margin:'20px'}}  onClick={handleSubmit} colorScheme='orange'>만들기</Button>
     </div>
   );
