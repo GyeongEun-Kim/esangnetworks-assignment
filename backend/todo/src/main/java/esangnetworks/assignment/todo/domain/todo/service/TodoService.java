@@ -2,6 +2,7 @@ package esangnetworks.assignment.todo.domain.todo.service;
 
 import esangnetworks.assignment.todo.domain.todo.dto.NewTodoRequestDto;
 import esangnetworks.assignment.todo.domain.todo.dto.ReadTodoResponseDto;
+import esangnetworks.assignment.todo.domain.todo.dto.TodoPagingDto;
 import esangnetworks.assignment.todo.domain.todo.dto.UpdateTodoRequestDto;
 import esangnetworks.assignment.todo.domain.todo.entity.Todo;
 import esangnetworks.assignment.todo.domain.todo.repository.TodoRepository;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.naming.NoPermissionException;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -48,6 +50,7 @@ public class TodoService {
           .user(user)
           .createdAt(LocalDate.now())
           .dueDate(newTodoRequestDto.getDueDate())
+          .done(false)
           .build();
 
       todoRepository.save(todo);
@@ -62,7 +65,7 @@ public class TodoService {
    * @param request 서블릿 요청 객체
    * @return 할 일 리스트
    */
-  public List<ReadTodoResponseDto> readTodoList(int size, int page, HttpServletRequest request) {
+  public TodoPagingDto readTodoList(int size, int page, HttpServletRequest request) {
 
     Pageable pageable = PageRequest.of(page, size, Direction.ASC, "dueDate"); //페이징 객체
 
@@ -70,20 +73,27 @@ public class TodoService {
     Integer userId = getUserId(request);
 
     List<Todo> todoListEntity = new ArrayList<>();
-    if (role.equals(ADMIN)) {
-      todoListEntity = todoRepository.findAll(pageable).getContent();
-      //관리자는 전체 할 일 조회 가능
-    } else if (role.equals(USER)) {
-      todoListEntity = todoRepository.findAllByUserUserId(pageable, userId);
-      //사용자는 자신이 작성한 할 일만 조회 가능
+    Integer totalPages;
+
+    if (role.equals(ADMIN)) { //관리자는 전체 할 일 조회 가능
+      Page<Todo> todoPage = todoRepository.findAll(pageable);
+      totalPages= todoPage.getTotalPages();
+      todoListEntity = todoPage.getContent();
+
+    }
+    else if (role.equals(USER)) { //사용자는 자신이 작성한 할 일만 조회 가능
+      Page<Todo> todoPage = todoRepository.findAllByUserUserId(pageable, userId);
+      totalPages = todoPage.getTotalPages();
+      todoListEntity = todoPage.getContent();
+
     }
     else { //세션에 저장된 권한이 없거나 다른 권한인 경우
       throw new NoSuchElementException();
     }
 
-    return todoListEntity.stream()
-        .map(e -> e.toDto())
-        .collect(Collectors.toList());
+    return new TodoPagingDto(totalPages, todoListEntity.stream()
+                                            .map(e -> e.toDto())
+                                            .collect(Collectors.toList()));
 
   }
 
@@ -100,15 +110,10 @@ public class TodoService {
         .map(todo -> todo.toDto())
         .orElseThrow();
 
-    System.out.println(responseDto.getUser().getUserId());
-    System.out.println(getUserId(request));
-    System.out.println(getUserRole(request));
-
-    if (getUserRole(request).equals(ADMIN)) {
-      //관리자는 사용자들이 작성한 할 일의 조회만 가능
+    if (getUserRole(request).equals(ADMIN)) //관리자는 사용자들이 작성한 할 일의 조회만 가능
       responseDto.setReadOnly(true);
-    }
-
+    else if (!getUserId(request).equals(responseDto.getUser().getUserId()))
+      throw new NoPermissionException(); //다른 사용자의 할 일을 url로 접근하여 조회할 수 없음
     else responseDto.setReadOnly(false);
 
     return responseDto;
@@ -129,6 +134,8 @@ public class TodoService {
           if (todo.getUser().getUserId().equals(userId)) { //작성자만 수정 가능
             todo.setTitle(updateTodoRequestDto.getTitle());
             todo.setContent(updateTodoRequestDto.getContent());
+            todo.setDueDate(updateTodoRequestDto.getDueDate());
+            todo.setDone(updateTodoRequestDto.getDone());
         }});
   }
 
