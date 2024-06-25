@@ -38,7 +38,6 @@ const Signup = () => {
       })
       .then(response=> response.json())
       .then(response => {
-        console.log(response);
         if (response.isAvailable === true) {
           alert('사용 가능한 아이디입니다.');
           setIsIdAvailable(true);

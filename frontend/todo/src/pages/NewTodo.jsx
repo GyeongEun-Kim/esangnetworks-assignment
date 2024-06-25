@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import { Button, Input, InputLeftAddon, Flex, InputGroup, Textarea } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ const NewTodo = () => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [dueDate, setDueDate] = useState("");
+    const [today, setToday] = useState("");
     const navigate = useNavigate();
     
     const handleTitle = (e) => {
@@ -22,6 +23,16 @@ const NewTodo = () => {
     const handleDueDate = (e) => {
       setDueDate(e.target.value);
   }
+
+  useEffect (() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+
+    setToday(`${year}-${month}-${day}`);
+
+  },[]);
 
   const handleSubmit = async () => {
     if(title.length ===0 || content.length ===0 || dueDate.length ===0) {
@@ -59,7 +70,7 @@ const NewTodo = () => {
 
         <InputGroup style={{margin:'20px'}}>
           <InputLeftAddon>마감 기한</InputLeftAddon>
-          <Input size='md' type='datetime-local'onChange={handleDueDate} />
+          <Input size='md' min={today} type='date'onChange={handleDueDate} />
         </InputGroup>
 
         <Button style={{margin:'20px'}}  onClick={()=>navigate('/todoList')} colorScheme='gray'>목록으로</Button>
