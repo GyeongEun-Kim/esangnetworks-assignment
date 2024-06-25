@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button,InputLeftAddon, InputGroup, Input, Textarea, RadioGroup, Stack, Radio } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,9 +6,11 @@ const TodoEdit = ({ todo, setIsEditing }) => {
   const [title, setTitle] = useState(todo.title);
   const [content, setContent] = useState(todo.content);
   const [done, setDone] = useState(todo.done);
-  const [dueDate, setDueDate] = useState(`${todo.dueDate}T00:00:00`);
+  const [dueDate, setDueDate] = useState(todo.dueDate);
+  const [today, setToday] = useState("");
 
   const navigate = useNavigate();
+
 
 
   const handleDueDate = (e) => {
@@ -26,6 +28,16 @@ const TodoEdit = ({ todo, setIsEditing }) => {
     setDone(e.target.value);
   }
 
+  useEffect (() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+
+    setToday(`${year}-${month}-${day}`);
+
+  },[]);
+
 
     const handleSubmit = async () => {
       if(title.length ===0 || content.length ===0 || dueDate.length ===0) {
@@ -41,7 +53,6 @@ const TodoEdit = ({ todo, setIsEditing }) => {
         credentials: 'include',
         body: JSON.stringify({ todoId: todo.todoId, title, content , dueDate, done}),
       })
-      .then(response=> console.log(response));
     
       setIsEditing(false);
     
@@ -61,10 +72,10 @@ const TodoEdit = ({ todo, setIsEditing }) => {
 
         <InputGroup style={{margin:'20px'}}>
           <InputLeftAddon>마감 기한</InputLeftAddon>
-          <Input value={dueDate} size='md' type='datetime-local'onChange={handleDueDate} />
+          <Input value={dueDate} size='md' min={today} type='date'onChange={handleDueDate} />
         </InputGroup>
 
-        <RadioGroup defaultValue='false' style={{margin:'20px'}}>
+        <RadioGroup defaultValue={done?'true':'false'} style={{margin:'20px'}}>
           <Stack spacing={5} direction='row'>
             <Radio colorScheme='red' value='true' onChange={handleDone}>
               완료

@@ -12,10 +12,6 @@ const TodoDetail = () => {
   const path = window.location.pathname;
   const todoId = path.split('/').pop(); // 경로에서 마지막 부분을 추출하여 ID로 사용
 
-
-  
-  console.log(todo);
-
   useEffect(() => {
       fetch(`http://localhost:8080/todo/${todoId}`,
       {

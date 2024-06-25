@@ -43,7 +43,6 @@ public class TodoService {
     User user = userRepository.findById(userId).orElseThrow();
     //현재 로그인된 사용자 객체를 가져옴
 
-    if (user.getRole().equals(USER)) {
       Todo todo = Todo.builder()
           .title(newTodoRequestDto.getTitle())
           .content(newTodoRequestDto.getContent())
@@ -54,7 +53,6 @@ public class TodoService {
           .build();
 
       todoRepository.save(todo);
-    }
 
   }
 
@@ -110,11 +108,21 @@ public class TodoService {
         .map(todo -> todo.toDto())
         .orElseThrow();
 
-    if (getUserRole(request).equals(ADMIN)) //관리자는 사용자들이 작성한 할 일의 조회만 가능
-      responseDto.setReadOnly(true);
+    if (getUserRole(request).equals(ADMIN)) {//관리자인 경우
+      /*
+        할 일의 수정과 삭제는 작성자만 가능하지만 관리자는 모든 할 일을 조회할 수 있으므로
+        readOnly 옵션으로 이를 구분한다.
+       */
+      if(!getUserId(request).equals(responseDto.getUser().getUserId())) {
+        responseDto.setReadOnly(true);
+      }
+      else responseDto.setReadOnly(false); //관리자 본인이 작성한 글일 경우
+    }
+
     else if (!getUserId(request).equals(responseDto.getUser().getUserId()))
-      throw new NoPermissionException(); //다른 사용자의 할 일을 url로 접근하여 조회할 수 없음
-    else responseDto.setReadOnly(false);
+      throw new NoPermissionException(); //다른 사용자의 할 일을 url로 직접 접근하여 조회할 수 없도록
+
+    else responseDto.setReadOnly(false);// 본인이 작성한 글일 경우 수정,삭제가 가능
 
     return responseDto;
 
